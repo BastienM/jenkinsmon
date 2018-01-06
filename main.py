@@ -39,10 +39,10 @@ class Configuration():
 
 
 def main():
-    args_init = parser.parse_args()
+    args = parser.parse_args()
 
     try:
-        config = Configuration.load(args_init.config)
+        config = Configuration.load(args.config)
     except InvalidConfigError as e:
         sys.exit(e)
 
