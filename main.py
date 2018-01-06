@@ -27,20 +27,22 @@ class InvalidConfigError(RuntimeError):
         return f"{self.path}: {self.details}"
 
 
-def load_config(file):
-        try:
-            return yaml.load(open(file, 'r'))
-        except yaml.YAMLError:
-            raise InvalidConfigError(file, "invalid YAML syntax")
-        except FileNotFoundError as e:
-            raise InvalidConfigError(file, "not found")
+class Configuration():
+
+    def load(config_file):
+            try:
+                return yaml.load(open(config_file, 'r'))
+            except yaml.YAMLError:
+                raise InvalidConfigError(config_file, "invalid YAML syntax")
+            except FileNotFoundError as e:
+                raise InvalidConfigError(config_file, "not found")
 
 
 def main():
     args_init = parser.parse_args()
 
     try:
-        config = load_config(args_init.config)
+        config = Configuration.load(args_init.config)
     except InvalidConfigError as e:
         sys.exit(e)
 
