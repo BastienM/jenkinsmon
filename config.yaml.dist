@@ -1,0 +1,4 @@
+---
+servers:
+    - name: jenkins.mono-project.com
+      url: https://jenkins.mono-project.com/api
