@@ -6,6 +6,7 @@ jenkinsmon documentation.
 import sys
 import yaml
 import argparse
+import urllib.request
 
 
 parser = argparse.ArgumentParser()
@@ -38,6 +39,23 @@ class Configuration():
                 raise InvalidConfigError(config_file, "not found")
 
 
+class Server(RuntimeError):
+
+    def __init__(self, name, url):
+        self.name = name
+        self.url = url
+        super().__init__(name, url)
+
+    def getStatus(self):
+        try:
+            if urllib.request.urlopen(self.url).getcode() == 200:
+                return True
+            else:
+                return False
+        except urllib.error.URLError:
+            print("Unable to find {0} ({1}).".format(self.name, self.url))
+
+
 def main():
     args = parser.parse_args()
 
@@ -46,7 +64,15 @@ def main():
     except InvalidConfigError as e:
         sys.exit(e)
 
-    print(config)
+    servers = []
+    for server in config["servers"]:
+        item = Server(server["name"], server["url"])
+        if item.getStatus():
+            servers.append(item)
+        else:
+            continue
+
+    print(servers)
 
 
 # Main body
