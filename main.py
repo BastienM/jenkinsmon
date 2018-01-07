@@ -7,6 +7,7 @@ import sys
 import yaml
 import jenkins
 import argparse
+import urllib
 
 
 parser = argparse.ArgumentParser()
@@ -49,11 +50,14 @@ def main():
 
     servers = []
     for server in config["servers"]:
-        client = jenkins.Jenkins(server["url"])
-        if client.get_version():
-            servers.append(client)
-        else:
-            continue
+        try:
+            client = jenkins.Jenkins(server["url"])
+            if client.get_version():
+                servers.append(client)
+            else:
+                continue
+        except urllib.error.URLError:
+            print("Communication failure with {0}".format(client.server))
 
 
 # Main body
