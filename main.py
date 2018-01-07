@@ -5,17 +5,11 @@ jenkinsmon documentation.
 
 import sys
 import yaml
+import urllib
 import jenkins
 import argparse
-import urllib
 
-
-parser = argparse.ArgumentParser()
-parser.add_argument("-c", "--config", action="store",
-                    dest="config",
-                    default="config.yaml",
-                    help="configuration file to use")
-parser.parse_args()
+from urllib.parse import urlsplit
 
 
 class InvalidConfigError(RuntimeError):
@@ -40,9 +34,17 @@ class Configuration():
                 raise InvalidConfigError(config_file, "not found")
 
 
-def main():
-    args = parser.parse_args()
+def get_domain_from_uri(uri):
+    return print("{0.netloc}/".format(urlsplit(uri)))
 
+
+def get_servers_info(servers):
+    print("The following configured servers are available :")
+    for server in servers:
+        print("\t - {0} ({1})".format(server.server, server.get_version()))
+
+
+def Main(args):
     try:
         config = Configuration.load(args.config)
     except InvalidConfigError as e:
@@ -59,7 +61,20 @@ def main():
         except urllib.error.URLError:
             print("Communication failure with {0}".format(client.server))
 
+    if args.action == "servers":
+        get_servers_info(servers)
+
 
 # Main body
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-c", "--config", metavar='file.yaml',
+                        action="store",
+                        dest="config",
+                        default="config.yaml",
+                        help="configuration file to use")
+
+    parser.add_argument("action", nargs="?",
+                        help="servers")
+    args = parser.parse_args()
+    Main(args)
